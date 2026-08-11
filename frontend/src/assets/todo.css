@@ -1,0 +1,220 @@
+.todos-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.todos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.todos-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.todos-header button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.no-todos {
+  color: var(--text);
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.todo-item.completed {
+  opacity: 0.5;
+}
+
+.todo-info {
+  flex: 1;
+  cursor: pointer;
+}
+
+.todo-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.todo-item.completed .todo-title {
+  text-decoration: line-through;
+}
+
+.todo-due {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+  color: var(--text);
+}
+
+.todo-due.overdue {
+  color: #dc2626;
+}
+
+.todo-desc {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  color: var(--text);
+}
+
+.todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.todo-actions .delete-btn {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch-track::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+.switch input:checked + .switch-track {
+  background: var(--accent);
+}
+
+.switch input:checked + .switch-track::before {
+  transform: translateX(18px);
+}
+
+.todo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.todo-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+
+.todo-modal h3 {
+  margin: 0 0 4px;
+}
+
+.todo-modal label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 4px;
+}
+
+.todo-modal input[type='text'],
+.todo-modal input[type='datetime-local'],
+.todo-modal textarea {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-h);
+  background: var(--bg);
+  font: inherit;
+}
+
+.todo-modal textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.todo-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.todo-modal-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.todo-modal-actions button[type='submit'] {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.todo-modal-actions button[type='button'] {
+  background: transparent;
+  color: var(--text);
+}

@@ -1,11 +1,14 @@
 import { useAuth } from '../composables/useAuth';
 import { useAlarms } from '../composables/useAlarms';
 import { useReminders } from '../composables/useReminders';
+import { useTodoNotifications } from '../composables/useTodoNotifications';
 import { getEvents } from '../api/calendar';
+import { getTodos } from '../api/todo';
 import { notify, playChime } from './notification';
 
 const TICK_MS = 20000;
 const EVENT_REFRESH_TICKS = 3; // 약 60초마다 이벤트를 다시 불러온다
+const TODO_REFRESH_TICKS = 3; // 약 60초마다 할 일을 다시 불러온다
 
 const WEEKDAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -70,6 +73,29 @@ async function checkReminders(now) {
   }
 }
 
+let todosCache = [];
+
+async function refreshTodosCache() {
+  try {
+    todosCache = await getTodos();
+  } catch {
+    // 네트워크 오류 시 다음 tick에서 재시도
+  }
+}
+
+async function checkTodos(now) {
+  if (tickCount % TODO_REFRESH_TICKS === 0) {
+    await refreshTodosCache();
+  }
+
+  const { computeDueTodos, markFired } = useTodoNotifications();
+  const due = computeDueTodos(todosCache, now);
+  for (const todo of due) {
+    notify('✅ 할 일', `${todo.title} - 마감 시간이 지났습니다.`);
+    markFired(todo.id);
+  }
+}
+
 async function tick() {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated.value) return;
@@ -77,6 +103,7 @@ async function tick() {
   const now = new Date();
   checkAlarms(now);
   await checkReminders(now);
+  await checkTodos(now);
   tickCount += 1;
 }
 

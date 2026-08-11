@@ -19,6 +19,12 @@ const router = createRouter({
       component: () => import('../views/alarms/AlarmsView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/todo',
+      name: 'todo',
+      component: () => import('../views/todo/TodoView.vue'),
+      meta: { requiresAuth: true },
+    }
   ],
 });
 

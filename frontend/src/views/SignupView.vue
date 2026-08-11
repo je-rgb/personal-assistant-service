@@ -7,18 +7,16 @@ import '../assets/auth.css';
 const router = useRouter();
 
 const form = reactive({ username: '', password: '', name: '' });
-const error = ref('');
 const loading = ref(false);
 
 async function handleSubmit() {
-  error.value = '';
   loading.value = true;
   try {
     await signup(form);
     router.push('/login');
   } catch (err) {
     const message = err.response?.data?.message || err.response?.data;
-    error.value = typeof message === 'string' ? message : '회원가입에 실패했습니다.';
+    alert(typeof message === 'string' && message ? message : '회원가입에 실패했습니다.');
   } finally {
     loading.value = false;
   }
@@ -29,8 +27,6 @@ async function handleSubmit() {
   <div class="auth-page">
     <form class="auth-form" @submit.prevent="handleSubmit">
       <h1>회원가입</h1>
-
-      <p v-if="error" class="auth-error">{{ error }}</p>
 
       <label>
         ID
