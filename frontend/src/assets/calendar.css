@@ -7,8 +7,18 @@
   min-height: calc(100vh - 60px);
 }
 
-.month-calendar { flex: 2; }
+.month-calendar { flex: 2; min-width: 0; }
 .day-event-list { flex: 1; min-width: 280px; }
+
+@media (max-width: 768px) {
+  .calendar-app {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .day-event-list { min-width: 0; }
+}
 
 .month-header {
   display: flex;
@@ -140,7 +150,7 @@
 .event-modal h3 { color: #ffd6ec; margin: 0 0 4px; }
 .event-modal label { display: flex; flex-direction: column; font-size: 13px; gap: 4px; color: #cba0b8; }
 .event-modal input, .event-modal textarea, .event-modal select {
-  background: #1a1116;
+  background: #694257de;
   border: 1px solid #4a2e3d;
   border-radius: 6px;
   color: #f3e6ee;

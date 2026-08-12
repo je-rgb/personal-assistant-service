@@ -81,3 +81,13 @@
   font-size: 13px;
 }
 .delete-btn:hover { opacity: 0.8; }
+
+@media (max-width: 480px) {
+  .todo-app { padding: 16px; }
+
+  .todo-form input[type="text"],
+  .todo-form input[type="datetime-local"] {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
