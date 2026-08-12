@@ -28,12 +28,12 @@
 }
 .month-header button:hover { background: #3d2531; }
 .today-btn {
-  background: #d6337a !important;
+  background: var(--accent) !important;
   color: #fff !important;
   border: none !important;
   font-weight: 600;
 }
-.today-btn:hover { background: #e04a8c !important; }
+.today-btn:hover { background: var(--accent) !important; }
 
 .weekday-row, .days-grid {
   display: grid;
@@ -58,7 +58,7 @@
   transition: background 0.15s;
 }
 .day-cell:hover { background: #2e1f28; }
-.day-cell.selected { background: #d6337a; color: #fff; }
+.day-cell.selected { background: var(--accent); color: #fff; }
 .day-cell.today .day-number { color: #ff6fb0; font-weight: bold; }
 .day-cell.selected .day-number { color: #fff; }
 .day-cell.empty { cursor: default; }
@@ -67,7 +67,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #ff6fb0;
+  background: var(--accent);
   margin-top: 2px;
 }
 .day-cell.selected .event-dot { background: #fff; }
@@ -80,7 +80,7 @@
 }
 .day-list-header h3 { color: #ffd6ec; margin: 0; }
 .day-list-header button {
-  background: #d6337a;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 20px;
@@ -89,7 +89,7 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.day-list-header button:hover { background: #e04a8c; }
+.day-list-header button:hover { background: var(--accent); }
 
 .no-events { color: #b98aa5; }
 
@@ -116,7 +116,7 @@
   cursor: pointer;
   font-size: 13px;
 }
-.delete-btn:hover { color: #ff5c7a; }
+.delete-btn:hover { color: var(--bg); }
 
 .modal-overlay {
   position: fixed;
@@ -149,12 +149,12 @@
 }
 .event-modal input:focus, .event-modal textarea:focus, .event-modal select:focus {
   outline: none;
-  border-color: #d6337a;
+  border-color: var(--accent);
 }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
 .modal-actions button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; }
-.modal-actions button[type="submit"] { background: #d6337a; color: #fff; font-weight: 600; }
-.modal-actions button[type="submit"]:hover { background: #e04a8c; }
+.modal-actions button[type="submit"] { background: var(--accent); color: #fff; font-weight: 600; }
+.modal-actions button[type="submit"]:hover { background: var(--accent); }
 .modal-actions button[type="button"] { background: transparent; color: #cba0b8; }
 
 .modal-error { color: #ff5c7a; font-size: 13px; margin: 0; }
