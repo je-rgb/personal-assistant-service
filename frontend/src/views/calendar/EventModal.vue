@@ -41,8 +41,8 @@ function handleSubmit() {
   }
   emit('save', {
     title: title.value,
-    startTime: new Date(startTime.value).toISOString(),
-    endTime: new Date(endTime.value).toISOString(),
+    startTime: startTime.value,
+    endTime: endTime.value,
     description: description.value,
     color: color.value,
     reminderMinutes: reminder.value,

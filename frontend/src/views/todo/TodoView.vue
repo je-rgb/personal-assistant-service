@@ -24,7 +24,7 @@ async function handleSubmit() {
     await createTodo({
       title: form.title,
       description: form.description || null,
-      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
+      dueDate: form.dueDate || null,
     });
     form.title = '';
     form.description = '';

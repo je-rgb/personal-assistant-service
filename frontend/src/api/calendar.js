@@ -1,8 +1,9 @@
 import http from './http';
+import { toDatetimeLocal } from '../utils/date';
 
 export async function getEvents(start, end) {
   const { data } = await http.get('/api/events', {
-    params: { start: start.toISOString(), end: end.toISOString() },
+    params: { start: toDatetimeLocal(start), end: toDatetimeLocal(end) },
   });
   return data;
 }

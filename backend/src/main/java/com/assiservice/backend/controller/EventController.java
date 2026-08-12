@@ -4,7 +4,6 @@ import com.assiservice.backend.dto.EventRequest;
 import com.assiservice.backend.dto.EventResponse;
 import com.assiservice.backend.service.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +20,8 @@ public class EventController {
     @GetMapping
     public List<EventResponse> getEvents(
             Authentication auth,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+            @RequestParam LocalDateTime start,
+            @RequestParam LocalDateTime end
     ) {
         return eventService.getEventsInRange(auth, start, end);
     }
