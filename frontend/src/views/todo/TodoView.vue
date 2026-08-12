@@ -1,15 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { getTodos, createTodo, updateTodo, completeTodo, deleteTodo } from '../../api/todo';
+import { reactive, ref, onMounted } from 'vue';
+import { getTodos, createTodo, completeTodo, deleteTodo } from '../../api/todo';
 import { useTodoNotifications } from '../../composables/useTodoNotifications';
-import TodoModal from './TodoModal.vue';
+import { toDatetimeLocal } from '../../utils/date';
 import '../../assets/todo.css';
 
 const { clearFired } = useTodoNotifications();
 
 const todos = ref([]);
-const modalOpen = ref(false);
-const editingTodo = ref(null);
+const form = reactive({ title: '', description: '', dueDate: '' });
+const loading = ref(false);
 
 async function loadTodos() {
   todos.value = await getTodos();
@@ -17,29 +17,22 @@ async function loadTodos() {
 
 onMounted(loadTodos);
 
-function openCreateModal() {
-  editingTodo.value = null;
-  modalOpen.value = true;
-}
-
-function openEditModal(todo) {
-  editingTodo.value = todo;
-  modalOpen.value = true;
-}
-
-function closeModal() {
-  modalOpen.value = false;
-  editingTodo.value = null;
-}
-
-async function handleSave(data) {
-  if (editingTodo.value) {
-    await updateTodo(editingTodo.value.id, data);
-  } else {
-    await createTodo(data);
+async function handleSubmit() {
+  if (!form.title.trim()) return;
+  loading.value = true;
+  try {
+    await createTodo({
+      title: form.title,
+      description: form.description || null,
+      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : null,
+    });
+    form.title = '';
+    form.description = '';
+    form.dueDate = '';
+    await loadTodos();
+  } finally {
+    loading.value = false;
   }
-  closeModal();
-  await loadTodos();
 }
 
 async function handleToggleComplete(todo) {
@@ -70,33 +63,35 @@ function formatDue(dueDate) {
 </script>
 
 <template>
-  <div class="todos-page">
-    <div class="todos-header">
-      <h1>할 일</h1>
-      <button type="button" @click="openCreateModal">+ 할 일 추가</button>
+  <div class="todo-app">
+    <div class="todo-header">
+      <h2>할 일</h2>
     </div>
 
-    <p v-if="todos.length === 0" class="no-todos">등록된 할 일이 없습니다.</p>
+    <form class="todo-form" @submit.prevent="handleSubmit">
+      <input v-model="form.title" type="text" placeholder="할 일을 입력하세요" required maxlength="100" />
+      <input v-model="form.dueDate" type="datetime-local" />
+      <textarea v-model="form.description" placeholder="설명 (선택)" maxlength="500"></textarea>
+      <button type="submit" :disabled="loading">등록</button>
+    </form>
 
-    <ul v-else class="todo-list">
-      <li v-for="todo in todos" :key="todo.id" :class="['todo-item', { completed: todo.completed }]">
-        <div class="todo-info" @click="openEditModal(todo)">
+    <p v-if="todos.length === 0" class="no-todos">등록된 할 일이 없습니다.</p>
+    <ul v-else class="todo-items">
+      <li v-for="todo in todos" :key="todo.id" class="todo-item" :class="{ completed: todo.completed }">
+        <input
+          type="checkbox"
+          :checked="todo.completed"
+          @change="handleToggleComplete(todo)"
+        />
+        <div class="todo-item-main">
           <span class="todo-title">{{ todo.title }}</span>
           <span v-if="todo.dueDate" class="todo-due" :class="{ overdue: isOverdue(todo) }">
             {{ formatDue(todo.dueDate) }}
           </span>
-          <span v-if="todo.description" class="todo-desc">{{ todo.description }}</span>
+          <p v-if="todo.description" class="todo-desc">{{ todo.description }}</p>
         </div>
-        <div class="todo-actions">
-          <label class="switch">
-            <input type="checkbox" :checked="todo.completed" @change="handleToggleComplete(todo)" />
-            <span class="switch-track"></span>
-          </label>
-          <button type="button" class="delete-btn" @click="handleDelete(todo.id)">삭제</button>
-        </div>
+        <button class="delete-btn" type="button" @click="handleDelete(todo.id)">삭제</button>
       </li>
     </ul>
-
-    <TodoModal v-if="modalOpen" :todo="editingTodo" @save="handleSave" @close="closeModal" />
   </div>
 </template>
