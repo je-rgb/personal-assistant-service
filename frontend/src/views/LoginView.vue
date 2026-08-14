@@ -8,7 +8,7 @@ import '../assets/auth.css';
 const router = useRouter();
 const { setToken } = useAuth();
 
-const form = reactive({ username: '', password: '' });
+const form = reactive({ loginId: '', password: '' });
 const error = ref('');
 const loading = ref(false);
 
@@ -37,7 +37,7 @@ async function handleSubmit() {
 
       <label>
         ID
-        <input v-model="form.username" type="text" required autocomplete="username" />
+        <input v-model="form.loginId" type="text" required autocomplete="username" />
       </label>
 
       <label>

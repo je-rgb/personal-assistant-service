@@ -32,6 +32,11 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
+	public boolean isUsernameAvailable(String username) {
+		return !userRepository.existsByUsername(username);
+	}
+
+	@Transactional(readOnly = true)
 	public String login(LoginRequest request) {
 		User user = userRepository.findByUsername(request.getUsername())
 				.orElseThrow(() -> new IllegalArgumentException("username 또는 password가 올바르지 않습니다."));
