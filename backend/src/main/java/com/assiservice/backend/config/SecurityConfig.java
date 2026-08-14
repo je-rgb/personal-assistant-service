@@ -31,7 +31,7 @@ public class SecurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //CORS 헤더가 응답 차단 방지
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS 헤더가 응답 차단 방지
 						.requestMatchers("/api/auth/**").permitAll()
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -42,7 +42,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173","http://13.124.56.44"));
+		configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://13.124.56.44.nip.io"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
