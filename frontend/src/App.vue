@@ -41,7 +41,16 @@ onMounted(() => {
 
   <div class="toast-stack">
     <div v-for="toast in toasts" :key="toast.id" class="toast">
-      {{ toast.message }}
+      <video
+        v-if="toast.mediaUrl"
+        class="toast-media"
+        :src="toast.mediaUrl"
+        autoplay
+        loop
+        muted
+        playsinline
+      ></video>
+      <span>{{ toast.message }}</span>
     </div>
   </div>
 </template>

@@ -32,7 +32,7 @@ function checkAlarms(now) {
     if (alarm.days.length > 0 && !alarm.days.includes(currentDay)) continue;
     if (alarm.lastFiredKey === fireKey) continue;
 
-    notify('⏰ 알람', alarm.label);
+    notify('⏰ 알람', alarm.label, { mediaUrl: '/media/alarm-clip.mp4' });
     playChime();
     updateAlarm(alarm.id, {
       lastFiredKey: fireKey,

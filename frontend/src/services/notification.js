@@ -16,11 +16,11 @@ export async function requestPermission() {
   return Notification.permission;
 }
 
-export function notify(title, body) {
+export function notify(title, body, options = {}) {
   if (isNotificationSupported() && Notification.permission === 'granted') {
     new Notification(title, { body });
   }
-  pushToast(body ? `${title} - ${body}` : title);
+  pushToast(body ? `${title} - ${body}` : title, undefined, options);
 }
 
 export function playChime() {
