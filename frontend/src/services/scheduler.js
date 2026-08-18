@@ -32,7 +32,7 @@ function checkAlarms(now) {
     if (alarm.days.length > 0 && !alarm.days.includes(currentDay)) continue;
     if (alarm.lastFiredKey === fireKey) continue;
 
-    notify('⏰ 알람', alarm.label, { mediaUrl: '/media/alarm-clip.mp4' });
+    notify('⏰ 알람', alarm.label, { mediaUrl: '/media/alarm-clip.gif' });
     playChime();
     updateAlarm(alarm.id, {
       lastFiredKey: fireKey,
@@ -91,7 +91,7 @@ async function checkTodos(now) {
   const { computeDueTodos, markFired } = useTodoNotifications();
   const due = computeDueTodos(todosCache, now);
   for (const todo of due) {
-    notify('✅ 할 일', `${todo.title} - 마감 시간이 지났습니다.`, { mediaUrl: '/media/todo-clip.mp4' });
+    notify('✅ 할 일', `${todo.title} - 마감 시간이 지났습니다.`, { mediaUrl: '/media/todo-clip.gif' });
     markFired(todo.id);
   }
 }

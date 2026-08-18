@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useAlarms } from '../../composables/useAlarms';
-import { getPermission, requestPermission } from '../../services/notification';
+import { getPermission, requestPermission, isNotificationSupported } from '../../services/notification';
 import AlarmModal from './AlarmModal.vue';
 import '../../assets/alarms.css';
 
@@ -12,6 +12,7 @@ const { alarms, addAlarm, updateAlarm, removeAlarm, toggleAlarm } = useAlarms();
 const modalOpen = ref(false);
 const editingAlarm = ref(null);
 const permission = ref(getPermission());
+const notificationsSupported = isNotificationSupported();
 
 onMounted(() => {
   permission.value = getPermission();
@@ -63,9 +64,12 @@ async function handleRequestPermission() {
       <button type="button" @click="openCreateModal">+ 알람 추가</button>
     </div>
 
-    <div v-if="permission !== 'granted'" class="permission-banner">
+    <div v-if="notificationsSupported && permission === 'default'" class="permission-banner">
       <span>브라우저 알림을 허용하면 알람과 리마인더를 데스크톱 알림으로도 받을 수 있어요.</span>
       <button type="button" @click="handleRequestPermission">알림 허용</button>
+    </div>
+    <div v-else-if="notificationsSupported && permission === 'denied'" class="permission-banner">
+      <span>브라우저 알림이 차단되어 있어요. 브라우저 설정에서 알림 권한을 허용해주세요.</span>
     </div>
 
     <p v-if="alarms.length === 0" class="no-alarms">등록된 알람이 없습니다.</p>
