@@ -1,7 +1,15 @@
 import http from './http';
+import { toDatetimeLocal } from '../utils/date';
 
 export async function getTodos() {
   const { data } = await http.get('/todos');
+  return data;
+}
+
+export async function getTodosInRange(start, end) {
+  const { data } = await http.get('/todos/range', {
+    params: { start: toDatetimeLocal(start), end: toDatetimeLocal(end) },
+  });
   return data;
 }
 

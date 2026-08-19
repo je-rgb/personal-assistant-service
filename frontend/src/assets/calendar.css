@@ -73,14 +73,19 @@
 .day-cell.selected .day-number { color: #fff; }
 .day-cell.empty { cursor: default; }
 
-.event-dot {
+.day-dots {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+.event-dot, .todo-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
-  margin-top: 2px;
 }
-.day-cell.selected .event-dot { background: #fff; }
+.todo-dot { background: #7ee787; }
+.day-cell.selected .event-dot, .day-cell.selected .todo-dot { background: #fff; }
 
 .day-list-header {
   display: flex;
@@ -119,6 +124,17 @@
 .event-title { font-weight: 600; color: #f3e6ee; }
 .event-reminder-badge { margin-left: 6px; font-size: 12px; }
 .event-desc { font-size: 13px; color: #cba0b8; margin-top: 4px; }
+.todo-badge {
+  display: inline-block;
+  background: #7ee787;
+  color: #143d1c;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-right: 4px;
+}
+.todo-done .event-title { text-decoration: line-through; color: #b98aa5; }
 .delete-btn {
   background: transparent;
   color: #ff8fa3;

@@ -29,7 +29,11 @@ const cells = computed(() => {
 const today = new Date();
 
 function hasEvents(date) {
-  return (props.eventsByDate[toDateKey(date)] || []).length > 0;
+  return (props.eventsByDate[toDateKey(date)] || []).some((item) => item.itemType !== 'todo');
+}
+
+function hasTodos(date) {
+  return (props.eventsByDate[toDateKey(date)] || []).some((item) => item.itemType === 'todo');
 }
 </script>
 
@@ -60,7 +64,10 @@ function hasEvents(date) {
       >
         <template v-if="date">
           <span class="day-number">{{ date.getDate() }}</span>
-          <span v-if="hasEvents(date)" class="event-dot" />
+          <span class="day-dots">
+            <span v-if="hasEvents(date)" class="event-dot" />
+            <span v-if="hasTodos(date)" class="todo-dot" />
+          </span>
         </template>
       </div>
     </div>

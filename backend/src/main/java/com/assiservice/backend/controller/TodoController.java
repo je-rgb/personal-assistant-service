@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,15 @@ public class TodoController {
     @GetMapping
     public List<TodoResponse> getTodos(Authentication auth) {
         return todoService.getTodos(auth);
+    }
+
+    @GetMapping("/range")
+    public List<TodoResponse> getTodosInRange(
+            Authentication auth,
+            @RequestParam LocalDateTime start,
+            @RequestParam LocalDateTime end
+    ) {
+        return todoService.getTodosInRange(auth, start, end);
     }
 
     @PostMapping

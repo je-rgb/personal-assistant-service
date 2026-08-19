@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { getEvents, createEvent, updateEvent, deleteEvent } from '../../api/calendar';
+import { getTodosInRange, completeTodo, deleteTodo } from '../../api/todo';
 import { useReminders } from '../../composables/useReminders';
 import { toDateKey } from '../../utils/date';
 import MonthCalendar from './MonthCalendar.vue';
@@ -13,6 +14,7 @@ const { setReminderMinutes, getReminderMinutes } = useReminders();
 const currentMonth = ref(new Date());
 const selectedDate = ref(new Date());
 const events = ref([]);
+const todos = ref([]);
 const modalOpen = ref(false);
 const editingEvent = ref(null);
 
@@ -29,7 +31,12 @@ const monthEnd = computed(() => {
 });
 
 async function loadEvents() {
-  events.value = await getEvents(monthStart.value, monthEnd.value);
+  const [loadedEvents, loadedTodos] = await Promise.all([
+    getEvents(monthStart.value, monthEnd.value),
+    getTodosInRange(monthStart.value, monthEnd.value),
+  ]);
+  events.value = loadedEvents;
+  todos.value = loadedTodos.filter((todo) => todo.dueDate);
 }
 
 watch([monthStart, monthEnd], loadEvents, { immediate: true });
@@ -39,7 +46,12 @@ const eventsByDate = computed(() => {
   for (const ev of events.value) {
     const key = toDateKey(new Date(ev.startTime));
     if (!map[key]) map[key] = [];
-    map[key].push(ev);
+    map[key].push({ ...ev, itemType: 'event' });
+  }
+  for (const todo of todos.value) {
+    const key = toDateKey(new Date(todo.dueDate));
+    if (!map[key]) map[key] = [];
+    map[key].push({ ...todo, itemType: 'todo', startTime: todo.dueDate, endTime: todo.dueDate });
   }
   return map;
 });
@@ -52,6 +64,7 @@ function openCreateModal() {
 }
 
 function openEditModal(event) {
+  if (event.itemType === 'todo') return;
   editingEvent.value = event;
   modalOpen.value = true;
 }
@@ -76,10 +89,20 @@ async function handleSave(formData) {
   loadEvents();
 }
 
-async function handleDelete(id) {
-  await deleteEvent(id);
-  setReminderMinutes(id, 0);
+async function handleDelete(item) {
+  if (item.itemType === 'todo') {
+    await deleteTodo(item.id);
+    loadEvents();
+    return;
+  }
+  await deleteEvent(item.id);
+  setReminderMinutes(item.id, 0);
   window.alert('일정이 삭제되었습니다.');
+  loadEvents();
+}
+
+async function handleToggleTodo(item) {
+  await completeTodo(item.id, !item.completed);
   loadEvents();
 }
 
@@ -115,6 +138,7 @@ function goToToday() {
       @add="openCreateModal"
       @edit="openEditModal"
       @delete="handleDelete"
+      @toggle-todo="handleToggleTodo"
     />
     <EventModal
       v-if="modalOpen"

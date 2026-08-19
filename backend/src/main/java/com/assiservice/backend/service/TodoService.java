@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,12 @@ public class TodoService {
     public List<TodoResponse> getTodos(Authentication auth) {
         User user = getCurrentUser(auth);
         return todoRepository.findByUserOrderByCompletedAscDueDateAsc(user)
+                .stream().map(TodoResponse::new).collect(Collectors.toList());
+    }
+
+    public List<TodoResponse> getTodosInRange(Authentication auth, LocalDateTime start, LocalDateTime end) {
+        User user = getCurrentUser(auth);
+        return todoRepository.findByUserAndDueDateBetween(user, start, end)
                 .stream().map(TodoResponse::new).collect(Collectors.toList());
     }
 

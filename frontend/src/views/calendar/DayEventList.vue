@@ -8,13 +8,21 @@ const props = defineProps({
   events: { type: Array, required: true },
 });
 
-const emit = defineEmits(['add', 'edit', 'delete']);
+const emit = defineEmits(['add', 'edit', 'delete', 'toggle-todo']);
 
 const { getReminderMinutes } = useReminders();
 
 const sortedEvents = computed(() =>
   [...props.events].sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
 );
+
+function handleMainClick(item) {
+  if (item.itemType === 'todo') {
+    emit('toggle-todo', item);
+  } else {
+    emit('edit', item);
+  }
+}
 </script>
 
 <template>
@@ -29,19 +37,23 @@ const sortedEvents = computed(() =>
     <ul v-else class="event-items">
       <li
         v-for="ev in sortedEvents"
-        :key="ev.id"
+        :key="`${ev.itemType}-${ev.id}`"
         class="event-item"
-        :style="{ borderLeftColor: ev.color }"
+        :class="{ 'todo-item': ev.itemType === 'todo', 'todo-done': ev.itemType === 'todo' && ev.completed }"
+        :style="{ borderLeftColor: ev.itemType === 'todo' ? '#7ee787' : ev.color }"
       >
-        <div class="event-item-main" @click="emit('edit', ev)">
-          <span class="event-time">{{ formatTime(ev.startTime) }} - {{ formatTime(ev.endTime) }}</span>
+        <div class="event-item-main" @click="handleMainClick(ev)">
+          <span v-if="ev.itemType === 'todo'" class="event-time">
+            <span class="todo-badge">할 일</span> {{ formatTime(ev.dueDate) }}
+          </span>
+          <span v-else class="event-time">{{ formatTime(ev.startTime) }} - {{ formatTime(ev.endTime) }}</span>
           <span class="event-title">
             {{ ev.title }}
-            <span v-if="getReminderMinutes(ev.id)" class="event-reminder-badge" title="리마인더 설정됨">🔔</span>
+            <span v-if="ev.itemType === 'event' && getReminderMinutes(ev.id)" class="event-reminder-badge" title="리마인더 설정됨">🔔</span>
           </span>
           <p v-if="ev.description" class="event-desc">{{ ev.description }}</p>
         </div>
-        <button type="button" class="delete-btn" @click="emit('delete', ev.id)">삭제</button>
+        <button type="button" class="delete-btn" @click="emit('delete', ev)">삭제</button>
       </li>
     </ul>
   </div>
