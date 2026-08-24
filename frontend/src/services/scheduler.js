@@ -6,9 +6,9 @@ import { getEvents } from '../api/calendar';
 import { getTodos } from '../api/todo';
 import { notify, playChime } from './notification';
 
-const TICK_MS = 20000;
-const EVENT_REFRESH_TICKS = 3; // 약 60초마다 이벤트를 다시 불러온다
-const TODO_REFRESH_TICKS = 3; // 약 60초마다 할 일을 다시 불러온다
+const TICK_MS = 3000;
+const EVENT_REFRESH_TICKS = 20; // 약 60초마다 이벤트를 다시 불러온다
+const TODO_REFRESH_TICKS = 20; // 약 60초마다 할 일을 다시 불러온다
 
 const WEEKDAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
 
