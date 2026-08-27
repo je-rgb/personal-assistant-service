@@ -1,48 +1,17 @@
-import { ref, watch } from 'vue';
-import { useAuth } from './useAuth';
+import { useNotificationFired } from './useNotificationFired';
 
-const { username } = useAuth();
-
-// 이미 알림을 보낸 todoId 목록 (중복 알림 방지)
-const firedTodos = ref([]);
-
-let firedKey = '';
-
-function keyFor() {
-  const user = username.value || 'guest';
-  return `firedTodos:${user}`;
-}
-
-function load() {
-  firedKey = keyFor();
-  try {
-    firedTodos.value = JSON.parse(localStorage.getItem(firedKey)) || [];
-  } catch {
-    firedTodos.value = [];
-  }
-}
-
-function persist() {
-  localStorage.setItem(firedKey, JSON.stringify(firedTodos.value));
-}
-
-load();
-watch(username, load);
-watch(firedTodos, persist, { deep: true });
+const { isFired: isNotificationFired, markFired: markNotificationFired, clearFired: clearNotificationFired } = useNotificationFired();
 
 function isFired(todoId) {
-  return firedTodos.value.includes(todoId);
+  return isNotificationFired('TODO', todoId, String(todoId));
 }
 
 function markFired(todoId) {
-  firedTodos.value.push(todoId);
-  if (firedTodos.value.length > 200) {
-    firedTodos.value = firedTodos.value.slice(-200);
-  }
+  return markNotificationFired('TODO', todoId, String(todoId));
 }
 
 function clearFired(todoId) {
-  firedTodos.value = firedTodos.value.filter((id) => id !== todoId);
+  return clearNotificationFired('TODO', todoId, String(todoId));
 }
 
 // 완료되지 않았고 마감일이 지난 할 일 중 아직 알림을 보내지 않은 것을 계산한다.
