@@ -21,7 +21,7 @@ function formatTime(date) {
 }
 
 function checkAlarms(now) {
-  const { alarms, updateAlarm, isAlarmFired, markAlarmFired } = useAlarms();
+  const { alarms, updateAlarm } = useAlarms();
   const currentTime = formatTime(now);
   const currentDay = now.getDay();
   const fireKey = `${now.toDateString()}_${currentTime}`;
@@ -30,14 +30,14 @@ function checkAlarms(now) {
     if (!alarm.enabled) continue;
     if (alarm.time !== currentTime) continue;
     if (alarm.days.length > 0 && !alarm.days.includes(currentDay)) continue;
-    if (isAlarmFired(alarm.id, fireKey)) continue;
+    if (alarm.lastFiredKey === fireKey) continue;
 
     notify('⏰ 알람', alarm.label, { mediaUrl: '/media/alarm-clip.gif' });
     playChime();
-    markAlarmFired(alarm.id, fireKey);
-    if (alarm.days.length === 0) {
-      updateAlarm(alarm.id, { enabled: false });
-    }
+    updateAlarm(alarm.id, {
+      lastFiredKey: fireKey,
+      enabled: alarm.days.length === 0 ? false : alarm.enabled,
+    });
   }
 }
 
