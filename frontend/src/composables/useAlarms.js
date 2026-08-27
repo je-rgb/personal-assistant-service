@@ -1,7 +1,9 @@
 import { ref, watch } from 'vue';
 import { useAuth } from './useAuth';
+import { useNotificationFired } from './useNotificationFired';
 
 const { username } = useAuth();
+const { isFired, markFired } = useNotificationFired();
 
 const alarms = ref([]);
 let currentKey = '';
@@ -36,7 +38,6 @@ function addAlarm({ label, time, days }) {
     time,
     days: [...days],
     enabled: true,
-    lastFiredKey: null,
   });
 }
 
@@ -54,6 +55,14 @@ function toggleAlarm(id) {
   if (alarm) alarm.enabled = !alarm.enabled;
 }
 
+function isAlarmFired(alarmId, fireKey) {
+  return isFired('ALARM', alarmId, fireKey);
+}
+
+function markAlarmFired(alarmId, fireKey) {
+  return markFired('ALARM', alarmId, fireKey);
+}
+
 export function useAlarms() {
-  return { alarms, addAlarm, updateAlarm, removeAlarm, toggleAlarm };
+  return { alarms, addAlarm, updateAlarm, removeAlarm, toggleAlarm, isAlarmFired, markAlarmFired };
 }

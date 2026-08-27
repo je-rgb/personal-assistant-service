@@ -45,7 +45,7 @@ function closeModal() {
 
 function handleSave(data) {
   if (editingAlarm.value) {
-    updateAlarm(editingAlarm.value.id, { ...data, lastFiredKey: null });
+    updateAlarm(editingAlarm.value.id, { ...data });
   } else {
     addAlarm(data);
   }
