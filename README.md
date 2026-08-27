@@ -18,10 +18,10 @@ Vue 3 SPA 프론트엔드와 Spring Boot REST API 백엔드, MySQL로 구성되�
 personal-assistant-service/
 ├─ backend/                          # Spring Boot API 서버
 │  └─ src/main/java/com/assiservice/backend/
-│     ├─ entity/          # User, Event, Todo (JPA 엔티티)
+│     ├─ entity/          # User, Event, Todo, NotificationFired (JPA 엔티티)
 │     ├─ repository/      # Spring Data JPA 리포지토리
-│     ├─ service/         # 비즈니스 로직 (UserService, EventService, TodoService)
-│     ├─ controller/      # REST 컨트롤러 (AuthController, EventController, TodoController)
+│     ├─ service/         # 비즈니스 로직 (UserService, EventService, TodoService, NotificationFiredService)
+│     ├─ controller/      # REST 컨트롤러 (AuthController, EventController, TodoController, NotificationFiredController)
 │     ├─ dto/             # 요청/응답 DTO
 │     ├─ security/        # JwtUtil, JwtAuthenticationFilter
 │     ├─ config/          # SecurityConfig (CORS, 필터체인, PasswordEncoder)
@@ -30,8 +30,8 @@ personal-assistant-service/
 └─ frontend/                         # Vue 3 SPA
    └─ src/
       ├─ views/            # HomeView, LoginView, SignupView, calendar/, todo/, alarms/
-      ├─ api/              # http(axios 인스턴스), auth.js, calendar.js, todo.js
-      ├─ composables/      # useAuth, useReminders, useAlarms, useTodoNotifications, useToast
+      ├─ api/              # http(axios 인스턴스), auth.js, calendar.js, todo.js, notifications.js
+      ├─ composables/      # useAuth, useReminders, useAlarms, useTodoNotifications, useNotificationFired, useToast
       ├─ services/         # scheduler.js(주기적 알림 체크), notification.js(브라우저 알림)
       ├─ router/           # vue-router 라우트 정의 + 인증 가드
       └─ utils/            # date.js, jwt.js
@@ -52,7 +52,7 @@ flowchart LR
 
     subgraph Server["Spring Boot REST API"]
         Filter["JwtAuthenticationFilter\n(Bearer 토큰 검증 → SecurityContext 설정)"]
-        Controllers["Controller\n(Auth / Event / Todo)"]
+        Controllers["Controller\n(Auth / Event / Todo / NotificationFired)"]
         Services["Service\n(비즈니스 로직 + 소유권 검증)"]
         Repos["Repository (Spring Data JPA)"]
         Filter --> Controllers --> Services --> Repos
@@ -66,7 +66,7 @@ flowchart LR
 
 - **인증 방식**: 세션을 사용하지 않는 Stateless 구조. 로그인 성공 시 서버가 JWT를 발급하고, 프론트엔드는 이를 `localStorage`에 저장한 뒤 모든 API 요청의 `Authorization: Bearer <token>` 헤더에 자동으로 실어 보냅니다(`frontend/src/api/http.js`).
 - **인가(권한) 처리**: 컨트롤러 진입 전 `JwtAuthenticationFilter`가 토큰을 검증해 `Authentication`(username)을 `SecurityContext`에 세팅합니다. `Event`/`Todo` 관련 서비스는 리소스 소유자(`user_id`)와 요청자가 일치하는지 매번 검증합니다.
-- **클라이언트 스케줄러**: 로그인 상태에서 20초마다 알람 시간, 캘린더 이벤트 리마인더, 할 일 마감 여부를 확인해 브라우저 알림 + 인앱 토스트를 띄웁니다(`frontend/src/services/scheduler.js`). 알람/리마인더 설정 자체는 서버에 저장하지 않고 사용자별로 `localStorage`에 보관합니다.
+- **클라이언트 스케줄러**: 로그인 상태에서 20초마다 알람 시간, 캘린더 이벤트 리마인더, 할 일 마감 여부를 확인해 브라우저 알림 + 인앱 토스트를 띄웁니다(`frontend/src/services/scheduler.js`). 알람 목록/리마인더 분(分) 설정 같은 "설정값"은 서버에 저장하지 않고 사용자별로 `localStorage`에 보관하지만, "언제 알림을 이미 보냈는지"(중복 발동 방지용 발동 기록)는 `useNotificationFired` 컴포저블을 통해 `notification_fired` 테이블에 저장되어 기기를 바꿔도 중복 알림이 뜨지 않습니다.
 
 ## DB 엔티티 설계 (ERD)
 
@@ -74,6 +74,7 @@ flowchart LR
 erDiagram
     USERS ||--o{ EVENTS : "등록"
     USERS ||--o{ TODOS : "등록"
+    USERS ||--o{ NOTIFICATION_FIRED : "발동 기록"
 
     USERS {
         Long id PK
@@ -100,14 +101,24 @@ erDiagram
         boolean completed "기본값 false"
         Long user_id FK
     }
+
+    NOTIFICATION_FIRED {
+        Long id PK
+        String sourceType "ALARM / REMINDER / TODO"
+        Long sourceId "알람/이벤트/할 일의 id"
+        String firedKey "nullable, 보조 구분 키(발동 시각 등)"
+        LocalDateTime firedAt
+        Long user_id FK
+    }
 ```
 
 > `ddl-auto=update` 설정으로 애플리케이션 기동 시 Hibernate가 엔티티 정의를 기준으로 테이블 스키마를 자동 반영합니다.
 
 ### 엔티티 관계 요약
 
-- `User 1 : N Event`, `User 1 : N Todo` — 모든 일정/할 일은 반드시 소유자(`user_id`, `FetchType.LAZY`)를 가집니다.
+- `User 1 : N Event`, `User 1 : N Todo`, `User 1 : N NotificationFired` — 모든 일정/할 일/발동 기록은 반드시 소유자(`user_id`, `FetchType.LAZY`)를 가집니다.
 - `Event`와 `Todo`는 서로 직접적인 FK 관계가 없는 **독립 테이블**입니다. 캘린더 화면에서는 두 테이블을 각각 조회한 뒤, 프론트엔드에서 `dueDate`(Todo)를 날짜 키 기준으로 `startTime`(Event)과 병합해 하나의 달력 UI에 표시합니다(아래 "캘린더 ↔ 할 일 연동" 참고).
+- `NotificationFired`도 `Event`/`Todo`/알람과 FK로 직접 연결되지 않고 `sourceType`(`ALARM`/`REMINDER`/`TODO`) + `sourceId`(해당 리소스의 id)로만 느슨하게 참조합니다. `(user_id, sourceType, sourceId, firedKey)` 조합에 유니크 제약이 걸려 있어 같은 알림이 중복 저장되지 않습니다.
 
 ## 인증 흐름
 
@@ -169,6 +180,20 @@ Base URL: `/api` (axios `baseURL: '/api'`, 상대 경로). `SecurityConfig`의 C
 | DELETE | `/todos/{id}` | 할 일 삭제 (소유자만) | - | `200` (본문 없음) |
 
 `TodoRequest`: `title, description, dueDate` / `TodoResponse`: `id, title, description, dueDate, completed`
+
+### 알림 발동 기록 (`/api/notifications/fired`) — 인증 필요
+
+알람/리마인더/할 일 마감 알림을 중복으로 띄우지 않기 위한 발동(fired) 기록 API입니다. 알람 목록이나 리마인더 분(分) 설정 같은 "설정값"은 여전히 프론트엔드 `localStorage`에 저장되며, 이 API는 "이미 알림을 보냈는지"만 서버에 저장합니다.
+
+| Method | Path | 설명 | 요청 | 응답 |
+| --- | --- | --- | --- | --- |
+| GET | `/notifications/fired` | 로그인한 사용자의 발동 기록 전체 조회 | - | `200` `NotificationFiredResponse[]` |
+| POST | `/notifications/fired` | 발동 기록 저장 (동일 조합 재요청 시 멱등, 중복 저장 안 됨) | `{ sourceType, sourceId, firedKey }` | `200` `NotificationFiredResponse` |
+| DELETE | `/notifications/fired?sourceType=&sourceId=&firedKey=` | 발동 기록 삭제 (예: 완료 취소한 할 일을 다시 알림 대상으로) | - | `200` (본문 없음) |
+
+`NotificationFiredRequest`: `sourceType`(`ALARM`/`REMINDER`/`TODO`), `sourceId`(알람/이벤트/할 일 id), `firedKey`(보조 구분 키 — 알람은 `요일_시간`, 리마인더는 알림 시각 ISO 문자열, 할 일은 id 문자열) / `NotificationFiredResponse`: `id, sourceType, sourceId, firedKey, firedAt`
+
+프론트엔드에서는 `composables/useNotificationFired.js`가 로그인 시 전체 발동 기록을 한 번 캐시해두고, `useAlarms`/`useReminders`/`useTodoNotifications`가 각각 이 캐시를 통해 중복 알림 여부를 판단·기록합니다.
 
 모든 인증 필요 엔드포인트는 `Authorization: Bearer <JWT>` 헤더가 없거나 유효하지 않으면 `401`을 반환하며, 프론트엔드 axios 인터셉터가 이를 감지해 자동 로그아웃 후 로그인 페이지로 이동시킵니다(`frontend/src/api/http.js`).
 
