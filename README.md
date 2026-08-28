@@ -240,3 +240,24 @@ npm install
 npm run dev
 ```
 - 기본 포트: `5173`
+
+### 시연화면
+
+시작 페이지
+<img width="1038" height="656" alt="image" src="https://github.com/user-attachments/assets/15c44428-1d3c-4d9d-828a-a997dfa6a045" />
+
+메인 화면
+<img width="1043" height="650" alt="image" src="https://github.com/user-attachments/assets/07671dd4-145a-4710-aaa1-8288eab118c1" />
+
+캘린더 화면 / 할 일 연결
+<img width="1040" height="650" alt="image" src="https://github.com/user-attachments/assets/3be19e5a-904d-48f3-a724-b7c198ee19c8" />
+
+브라우저 별로 알람 기능 이용 가능
+<img width="1053" height="652" alt="image" src="https://github.com/user-attachments/assets/a728ad80-e442-45b4-9f55-3f3d5b7cf8a4" />
+
+할 일 등 화면
+<img width="1031" height="650" alt="image" src="https://github.com/user-attachments/assets/a18042ba-4eb8-4432-af4f-bf73c5459b4b" />
+
+Notification
+<img width="1040" height="652" alt="image" src="https://github.com/user-attachments/assets/cb4645c3-25da-43c1-b43c-4ae8dc9d0c4b" />
+
